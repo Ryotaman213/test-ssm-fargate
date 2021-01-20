@@ -1,0 +1,27 @@
+version: 0.2
+env:
+  secrets-manager:
+    DOCKER_HUB_USER: arn:aws:secretsmanager:ap-northeast-1:453486160642:secret:test-secret-8NtMHr:DOCKER_HUB_USER
+    DOCKER_HUB_PASS: arn:aws:secretsmanager:ap-northeast-1:453486160642:secret:test-secret-8NtMHr:DOCKER_HUB_PASS
+phases:
+  install:
+    runtime-versions:
+      php: 7.3
+  pre_build: # commands to be run before build
+    commands:
+      - echo Logging in to Docker Hub...
+      - echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin
+      - echo Logging in to Amazon ECR....
+      - aws --version
+      - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email | sed 's|https://||')
+      - REPOSITORY_URI=453486160642.dkr.ecr.ap-northeast-1.amazonaws.com/ssm-test
+  build:
+    commands:
+      - echo Building the Docker image...
+      - docker build -t ssm-test .
+      - docker tag ssm-test:latest $REPOSITORY_URI:latest
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:latest
