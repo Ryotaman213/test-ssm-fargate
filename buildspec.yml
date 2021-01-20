@@ -13,7 +13,7 @@ phases:
       - echo $DOCKER_HUB_PASS | docker login -u $DOCKER_HUB_USER --password-stdin
       - echo Logging in to Amazon ECR....
       - aws --version
-      - eval $(aws ecr get-login --region ap-northeast-1 --no-include-email | sed 's|https://||')
+      - aws ecr get-login-password --region ap-northeast-1 | docker login --username AWS --password-stdin 453486160642.dkr.ecr.ap-northeast-1.amazonaws.com
       - REPOSITORY_URI=453486160642.dkr.ecr.ap-northeast-1.amazonaws.com/ssm-test
   build:
     commands:
